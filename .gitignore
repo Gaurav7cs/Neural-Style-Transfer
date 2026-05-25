@@ -1,7 +1,19 @@
-*.pth
-*.zip
+# Python cache
 __pycache__/
+*.pyc
+
+# Uploads
 static/uploads/
-Content_data/
-Style_data/
+
+# Datasets
+content_data/
+style_data/
+
+# Training experiments
 experiment/
+
+# Model weights
+*.pth
+
+# OS files
+.DS_Store
