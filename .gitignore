@@ -1,0 +1,7 @@
+*.pth
+*.zip
+__pycache__/
+static/uploads/
+Content_data/
+Style_data/
+experiment/
