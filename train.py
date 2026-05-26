@@ -37,7 +37,7 @@ def parse_arguments():
     parser.add_argument('--lr_decay', type=float, default=5e-5,
                         help='Learning rate decay')
     
-    parser.add_argument('--epochs', type=int, default=50,
+    parser.add_argument('--epochs', type=int, default=2,
                         help='Number of epochs')
     
     parser.add_argument('--content_weight', type=float, default=1.0,
