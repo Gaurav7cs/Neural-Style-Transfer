@@ -9,11 +9,5 @@ static/uploads/
 content_data/
 style_data/
 
-# Training experiments
-experiment/
-
-# Model weights
-*.pth
-
 # OS files
 .DS_Store
