@@ -14,6 +14,7 @@ import io
 from utils.models import VGGEncoder, Decoder
 from utils.utils import adaptive_instance_normalization, calc_mean_std
 
+torch.set_grad_enabled(False)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -31,7 +32,8 @@ class UploadForm(FlaskForm):
     alpha = FloatField('Alpha', default=1.0)
     submit = SubmitField('Transfer Style')
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 encoder = VGGEncoder('vgg_normalised.pth').to(device)
 decoder = Decoder().to(device)
@@ -48,12 +50,12 @@ def allowed_file(filename):
 
 def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
     content_transform = transforms.Compose([
-        transforms.Resize(512),
+        transforms.Resize(256),
         transforms.ToTensor()
     ])
 
     style_transform = transforms.Compose([
-        transforms.Resize(512),
+        transforms.Resize(256),
         transforms.ToTensor()
     ])
     content_image = content_transform(content_image).unsqueeze(0).to(device)
