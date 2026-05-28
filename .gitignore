@@ -11,3 +11,21 @@ style_data/
 
 # OS files
 .DS_Store
+
+# Ignore all experiment folders
+experiment/*
+
+# But allow final_exp
+!experiment/final_exp/
+
+# Allow files inside final_exp
+!experiment/final_exp/**
+
+# Ignore all .pth files
+*.pth
+
+# But allow this specific model
+!vgg_normalised.pth
+
+# Allow decoder model
+!experiment/final_exp/decoder_final.pth
