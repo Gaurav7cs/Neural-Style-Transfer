@@ -29,3 +29,6 @@ experiment/*
 
 # Allow decoder model
 !experiment/final_exp/decoder_final.pth
+
+# Server logs
+*.log

@@ -1,6 +1,6 @@
 import os
 import torch
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, send_file, jsonify
 from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
 from werkzeug.utils import secure_filename
@@ -32,8 +32,7 @@ class UploadForm(FlaskForm):
     alpha = FloatField('Alpha', default=1.0)
     submit = SubmitField('Transfer Style')
 
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 encoder = VGGEncoder('vgg_normalised.pth').to(device)
 decoder = Decoder().to(device)
@@ -149,6 +148,36 @@ def send_image(filename):
 @app.route('/examples/<path:filename>')
 def send_example(filename):
     return send_from_directory('examples', filename)
+
+
+@app.route('/api/stylize', methods=['POST'])
+def api_stylize():
+    content_file = request.files.get('content')
+    style_file = request.files.get('style')
+
+    if content_file is None or style_file is None:
+        return jsonify({'error': 'content and style images are required'}), 400
+
+    try:
+        content_image = Image.open(content_file).convert('RGB')
+        style_image = Image.open(style_file).convert('RGB')
+    except Exception:
+        return jsonify({'error': 'invalid image file'}), 400
+
+    try:
+        alpha = float(request.form.get('alpha', '1.0'))
+    except ValueError:
+        return jsonify({'error': 'alpha must be a number'}), 400
+
+    stylized_image = style_transfer(content_image, style_image, encoder, decoder, alpha, device)
+
+    buffer = io.BytesIO()
+    buffer.name = 'stylized.png'
+    save_image(stylized_image, buffer)
+    buffer.seek(0)
+
+    return send_file(buffer, mimetype='image/png', download_name='stylized.png')
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
