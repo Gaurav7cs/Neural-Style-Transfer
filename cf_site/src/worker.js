@@ -1,5 +1,22 @@
-export async function onRequestPost(context) {
-  const origin = context.env.BACKEND_URL;
+const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()',
+  'Content-Security-Policy':
+    "default-src 'self'; img-src 'self' data: blob: https://images.unsplash.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+};
+
+function withSecurityHeaders(response) {
+  const out = new Response(response.body, response);
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    out.headers.set(key, value);
+  }
+  return out;
+}
+
+async function handleStylize(request, env) {
+  const origin = env.BACKEND_URL;
   if (!origin) {
     return new Response(
       JSON.stringify({ error: 'BACKEND_URL environment variable is not configured' }),
@@ -8,7 +25,7 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const form = await context.request.formData();
+    const form = await request.formData();
     const content = form.get('content');
     const style = form.get('style');
 
@@ -52,3 +69,16 @@ export async function onRequestPost(context) {
     );
   }
 }
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/api/stylize' && request.method === 'POST') {
+      return withSecurityHeaders(await handleStylize(request, env));
+    }
+
+    const asset = await env.ASSETS.fetch(request);
+    return withSecurityHeaders(asset);
+  },
+};
