@@ -30,5 +30,11 @@ experiment/*
 # Allow decoder model
 !experiment/final_exp/decoder_final.pth
 
+# But ignore training sample outputs in final_exp
+experiment/final_exp/sample_iter_*.png
+
 # Server logs
 *.log
+
+# Local deployment config
+.wrangler/
